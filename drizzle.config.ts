@@ -9,4 +9,5 @@ export default {
     url: env.DATABASE_URL,
   },
   tablesFilter: ["chat-app-v2_*"],
+  verbose: true,
 } satisfies Config;
