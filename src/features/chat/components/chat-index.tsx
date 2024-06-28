@@ -1,18 +1,14 @@
-"use client";
-import React from "react";
-import { Button } from "~/features/shared/components/ui/button";
-import { useMutationAddChat } from "../hooks/use-mutation-add-chat";
+import ChatList from "./chat-list";
+import NewChatForm from "./new-chat-form";
 
 function ChatIndex() {
-  const { mutateAsync: addChat } = useMutationAddChat();
-
-  async function handleClick() {
-    await addChat({ name: "test group" });
-  }
-
   return (
     <div>
-      <Button onClick={handleClick}>Add Group</Button>
+      <div className="flex justify-between items-center py-4">
+        <h1 className="font-bold text-xl">Chat Groups</h1>
+        <NewChatForm />
+      </div>
+      <ChatList />
     </div>
   );
 }

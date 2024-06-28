@@ -1,0 +1,1 @@
+ALTER TABLE "chat-app-v2_user_permissions" ADD CONSTRAINT "chat-app-v2_user_permissions_chat_id_user_id_unique" UNIQUE("chat_id","user_id");

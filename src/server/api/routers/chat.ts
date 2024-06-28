@@ -1,9 +1,39 @@
 import { TRPCError } from "@trpc/server";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { chats, userChatPermissions } from "~/server/db/schema";
 
 export const chatRouter = createTRPCRouter({
+  getUserChats: protectedProcedure
+    .input(z.object({}))
+    .query(async ({ ctx, input }) => {
+      const chats = await ctx.db.query.userChatPermissions.findMany({
+        where: eq(userChatPermissions.userId, ctx.user.id),
+        with: {
+          chat: true,
+        },
+      });
+
+      return chats;
+    }),
+  getUserChatById: protectedProcedure
+    .input(z.object({ chatId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const chat = await ctx.db.query.userChatPermissions.findFirst({
+        where: and(
+          eq(userChatPermissions.userId, ctx.user.id),
+          eq(userChatPermissions.chatId, input.chatId),
+        ),
+        with: {
+          chat: true,
+        },
+      });
+      if (!chat) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Chat not found" });
+      }
+      return chat;
+    }),
   addChat: protectedProcedure
     .input(
       z.object({

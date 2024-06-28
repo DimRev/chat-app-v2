@@ -1,4 +1,5 @@
-import React, { ReactNode } from "react";
+import { type ReactNode } from "react";
+import ChatSidebar from "~/features/layout/components/chat-sidebar";
 
 type Props = {
   children: ReactNode;
@@ -6,8 +7,8 @@ type Props = {
 
 function ChatLayout({ children }: Props) {
   return (
-    <main className="grid grid-cols-8">
-      <div>Sidebar</div>
+    <main className="grid grid-cols-8 h-full">
+      <ChatSidebar />
       {children}
     </main>
   );

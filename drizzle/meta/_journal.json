@@ -15,6 +15,20 @@
       "when": 1719576081033,
       "tag": "0001_absent_meltdown",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1719579692178,
+      "tag": "0002_romantic_lockjaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1719581365674,
+      "tag": "0003_lean_maverick",
+      "breakpoints": true
     }
   ]
 }

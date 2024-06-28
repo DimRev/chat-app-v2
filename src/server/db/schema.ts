@@ -1,4 +1,10 @@
-import { pgTableCreator, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  pgTableCreator,
+  text,
+  timestamp,
+  unique,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 export const createTable = pgTableCreator((name) => `chat-app-v2_${name}`);
 
@@ -31,17 +37,34 @@ export const messages = createTable("message", {
   updateAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const userChatPermissions = createTable("user_permissions", {
+export const userChatPermissions = createTable(
+  "user_permissions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    chatId: uuid("chat_id")
+      .notNull()
+      .references(() => chats.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    role: text("role", {
+      enum: ["owner", "admin", "elevated", "member"],
+    })
+      .notNull()
+      .default("member"),
+  },
+  (table) => ({
+    uniqueUserChat: unique().on(table.chatId, table.userId),
+  }),
+);
+
+export const invitations = createTable("invitation", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
   chatId: uuid("chat_id")
     .notNull()
     .references(() => chats.id, { onDelete: "cascade", onUpdate: "cascade" }),
-  role: text("role", {
-    enum: ["owner", "admin", "elevated", "member"],
-  })
-    .notNull()
-    .default("member"),
+  type: text("type", {
+    enum: ["permanent", "one-time", "time-limited"],
+  }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
