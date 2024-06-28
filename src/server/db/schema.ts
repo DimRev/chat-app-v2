@@ -39,5 +39,9 @@ export const userChatPermissions = createTable("user_permissions", {
   chatId: uuid("chat_id")
     .notNull()
     .references(() => chats.id, { onDelete: "cascade", onUpdate: "cascade" }),
-  role: text("role", { enum: ["owner", "admin", "elevated", "member"] }),
+  role: text("role", {
+    enum: ["owner", "admin", "elevated", "member"],
+  })
+    .notNull()
+    .default("member"),
 });

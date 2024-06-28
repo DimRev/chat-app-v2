@@ -1,4 +1,5 @@
 import React from "react";
+import ChatIndex from "~/features/chat/components/chat-index";
 
 function ChatPage() {
   return (
@@ -6,6 +7,7 @@ function ChatPage() {
       <div className="container">
         <div>
           <h1>Chat Page</h1>
+          <ChatIndex />
         </div>
       </div>
     </main>

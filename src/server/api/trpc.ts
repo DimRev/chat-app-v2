@@ -8,10 +8,12 @@
  */
 import { currentUser } from "@clerk/nextjs/server";
 import { initTRPC, TRPCError } from "@trpc/server";
+import { eq } from "drizzle-orm";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "~/server/db";
+import { users } from "../db/schema";
 
 /**
  * 1. CONTEXT
@@ -28,6 +30,7 @@ import { db } from "~/server/db";
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   return {
     db,
+    clerkUser: null,
     user: null,
     ...opts,
   };
@@ -85,14 +88,24 @@ export const createTRPCRouter = t.router;
 export const publicProcedure = t.procedure;
 
 export const protectedProcedure = publicProcedure.use(async (opts) => {
-  const user = await currentUser();
+  const clerkUser = await currentUser();
+
+  if (!clerkUser) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.clerkId, clerkUser.id),
+  });
 
   if (!user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
+
   return opts.next({
     ctx: {
       ...opts.ctx,
+      clerkUser: clerkUser,
       user: user,
     },
   });
