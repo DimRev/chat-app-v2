@@ -4,6 +4,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { env } from "~/env";
 import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
 
 export const POST = async (req: NextRequest) => {
   // Check if the request method is POST (Next.js app router already ensures this)
@@ -52,29 +53,72 @@ export const POST = async (req: NextRequest) => {
   }
 
   // Handle the webhook
-  if (evt.type === "user.created") {
-    const { id, email_addresses, username, primary_email_address_id } =
-      evt.data;
-
-    const primaryEmailAddress = email_addresses.find(
-      (emailAddress) => emailAddress.id === primary_email_address_id,
-    )?.email_address;
-
-    if (!primaryEmailAddress || !username) {
-      console.log(`Failed to add user of id: ${id} - missing email / username`);
-      return NextResponse.json(
-        { error: "No Primary email address" },
-        { status: 400 },
-      );
-    }
-
-    console.log(id, email_addresses, username);
-
-    await db.insert(users).values({
-      clerkId: id,
-      email: primaryEmailAddress,
-      name: username,
-    });
+  switch (evt.type) {
+    case "user.created":
+      const {
+        id: cu_id,
+        email_addresses: cu_email_addresses,
+        username: cu_username,
+        primary_email_address_id: cu_primary_email_address_id,
+      } = evt.data;
+      const cu_primaryEmailAddress = cu_email_addresses.find(
+        (emailAddress) => emailAddress.id === cu_primary_email_address_id,
+      )?.email_address;
+      if (!cu_primaryEmailAddress || !cu_username) {
+        console.log(
+          `Failed to add user of id: ${cu_id} - missing email / username`,
+        );
+        return NextResponse.json(
+          { error: "No Primary email address or username" },
+          { status: 400 },
+        );
+      }
+      await db.insert(users).values({
+        clerkId: cu_id,
+        email: cu_primaryEmailAddress,
+        name: cu_username,
+      });
+      break;
+    case "user.updated":
+      const {
+        id: uu_id,
+        username: uu_username,
+        email_addresses: uu_email_addresses,
+        primary_email_address_id: uu_primary_email_address_id,
+      } = evt.data;
+      const uu_primaryEmailAddress = uu_email_addresses.find(
+        (emailAddress) => emailAddress.id === uu_primary_email_address_id,
+      )?.email_address;
+      if (!uu_primaryEmailAddress || !uu_username) {
+        console.log(
+          `Failed to update user of id: ${uu_id} - missing email / username`,
+        );
+        return NextResponse.json(
+          { error: "No Primary email address or username" },
+          { status: 400 },
+        );
+      }
+      await db
+        .update(users)
+        .set({
+          email: uu_primaryEmailAddress,
+          name: uu_username,
+        })
+        .where(eq(users.clerkId, uu_id));
+      break;
+    case "user.deleted":
+      const { deleted, id: du_id } = evt.data;
+      if (!deleted || !du_id) {
+        console.log(
+          `Failed to delete user of id: ${du_id} - deleted is false?`,
+        );
+        return NextResponse.json(
+          { error: "Failed to delete user" },
+          { status: 400 },
+        );
+      }
+      await db.delete(users).where(eq(users.clerkId, du_id));
+      break;
   }
 
   return NextResponse.json({ received: true });
