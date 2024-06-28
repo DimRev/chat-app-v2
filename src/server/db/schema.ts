@@ -33,6 +33,7 @@ export const messages = createTable("message", {
   chatId: uuid("chat_id")
     .notNull()
     .references(() => chats.id, { onDelete: "cascade", onUpdate: "cascade" }),
+  content: text("content").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updateAt: timestamp("updated_at").defaultNow().notNull(),
 });

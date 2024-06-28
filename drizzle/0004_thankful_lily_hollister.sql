@@ -1,0 +1,1 @@
+ALTER TABLE "chat-app-v2_message" ADD COLUMN "content" text NOT NULL;

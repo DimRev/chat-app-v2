@@ -40,7 +40,9 @@ function NewChatForm() {
     try {
       await addChat(values);
       setIsOpen(false);
-    } catch (err) {}
+    } catch (err) {
+      //TODO: setup err
+    }
   }
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
