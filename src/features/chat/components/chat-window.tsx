@@ -72,13 +72,13 @@ function ChatWindow({ chatId }: Props) {
     );
 
   return (
-    <div className="flex-1 grid grid-rows-10 my-2 px-4 pt-4 border rounded-sm">
-      <div className="row-span-9">
+    <div className="flex-1 grid grid-rows-10 my-2 px-4 pt-4 border rounded-sm overflow-hidden">
+      <div className="row-span-9 overflow-auto">
         {messages.map((message) => (
           <div key={message.id}>
-            <div className="flex justify-end gap-4 bg-muted px-1 py-1 border-b text-muted-foreground">
-              {message.author.name} -{" "}
-              {message.author.createdAt.toLocaleString()}
+            <div className="flex justify-between gap-4 bg-muted/15 px-1 py-1 font-extrabold text-muted-foreground">
+              <span className="text-primary">{message.author.name}</span>
+              {message.createdAt.toLocaleString()}
             </div>
             <div className="p-1">{message.content}</div>
           </div>

@@ -11,7 +11,7 @@ function ChatSidebar() {
     useQueryGetChats();
   if (isChatsLoading)
     return (
-      <div className="bg-muted text-muted-foreground">
+      <div className="bg-muted/60 text-muted-foreground">
         <nav className="flex flex-col items-start">
           <div className="flex items-center gap-2 px-2 py-4">
             <span>Loading</span>
@@ -21,9 +21,9 @@ function ChatSidebar() {
       </div>
     );
   if (!permissionChats)
-    return <div className="bg-muted text-muted-foreground">Error</div>;
+    return <div className="bg-muted/60 text-muted-foreground">Error</div>;
   return (
-    <div className="bg-muted text-muted-foreground">
+    <div className="bg-muted/60 text-muted-foreground">
       <nav className="flex flex-col items-start">
         {permissionChats.map((permissionChat) => (
           <Link
