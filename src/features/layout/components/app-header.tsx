@@ -1,13 +1,5 @@
-import {
-  SignedIn,
-  SignedOut,
-  SignIn,
-  SignInButton,
-  SignOutButton,
-  UserButton,
-} from "@clerk/nextjs";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
-import React from "react";
 import { Button, buttonVariants } from "~/features/shared/components/ui/button";
 import { cn } from "~/lib/utils";
 

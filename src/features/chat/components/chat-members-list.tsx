@@ -5,6 +5,7 @@ type Props = {
 };
 
 function ChatMembersList({ chatId }: Props) {
+  console.log(chatId);
   return <div>ChatMembersList</div>;
 }
 

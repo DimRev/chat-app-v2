@@ -12,6 +12,7 @@ type Props = {
 };
 
 function ChatMembersDialog({ chatId }: Props) {
+  console.log(chatId);
   return (
     <Dialog>
       <DialogTrigger asChild>

@@ -1,12 +1,10 @@
 "use client";
-import { useRouter } from "next/navigation";
-import React from "react";
-import { useQueryGetUserChatById } from "../hooks/use-query-get-chat-by-id";
 import { Loader2 } from "lucide-react";
-import ChatWindow from "./chat-window";
+import { useRouter } from "next/navigation";
+import { useQueryGetUserChatById } from "../hooks/use-query-get-chat-by-id";
 import ChatInvitationDialog from "./chat-invitation-dialog";
-import { Button } from "~/features/shared/components/ui/button";
 import ChatMembersDialog from "./chat-members-dialog";
+import ChatWindow from "./chat-window";
 
 type Props = {
   chatId: string;
