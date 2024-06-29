@@ -7,7 +7,7 @@ import { chats, userChatPermissions } from "~/server/db/schema";
 export const chatRouter = createTRPCRouter({
   getUserChats: protectedProcedure
     .input(z.object({}))
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx }) => {
       const chats = await ctx.db.query.userChatPermissions.findMany({
         where: eq(userChatPermissions.userId, ctx.user.id),
         with: {

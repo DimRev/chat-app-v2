@@ -61,6 +61,7 @@ export const POST = async (req: NextRequest) => {
         username: cu_username,
         primary_email_address_id: cu_primary_email_address_id,
       } = evt.data;
+
       const cu_primaryEmailAddress = cu_email_addresses.find(
         (emailAddress) => emailAddress.id === cu_primary_email_address_id,
       )?.email_address;
@@ -73,11 +74,16 @@ export const POST = async (req: NextRequest) => {
           { status: 400 },
         );
       }
-      await db.insert(users).values({
-        clerkId: cu_id,
-        email: cu_primaryEmailAddress,
-        name: cu_username,
-      });
+      try {
+        await db.insert(users).values({
+          clerkId: cu_id,
+          email: cu_primaryEmailAddress,
+          name: cu_username,
+        });
+      } catch (err) {
+        console.log(err);
+        return NextResponse.json({ received: false });
+      }
       break;
     case "user.updated":
       const {

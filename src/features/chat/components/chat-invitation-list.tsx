@@ -56,7 +56,7 @@ function ChatInvitationList({ chatId }: Props) {
           <div className="col-span-2 font-semibold">{chatInvitation.type}</div>
           <div className="col-span-4 bg-muted text-muted-foreground overflow-x-auto">
             <code className="block px-2 p-2 rounded-md whitespace-nowrap">
-              {`${env.NEXT_PUBLIC_NEXT_URL}/chat/invitation/${chatInvitation.id}`}
+              {`${env.NEXT_PUBLIC_NEXT_URL}/api/invitation?invId=${chatInvitation.id}`}
             </code>
           </div>
           <div className="flex justify-between gap-2 col-span-2">
@@ -64,7 +64,7 @@ function ChatInvitationList({ chatId }: Props) {
               size="icon"
               onClick={() =>
                 handleCopy(
-                  `${env.NEXT_PUBLIC_NEXT_URL}/chat/invitation/${chatInvitation.id}`,
+                  `${env.NEXT_PUBLIC_NEXT_URL}/api/invitation?invId=${chatInvitation.id}`,
                   chatInvitation.id,
                 )
               }
