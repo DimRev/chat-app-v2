@@ -31,9 +31,11 @@ function ChatGroupIndex({ chatId }: Props) {
   }
   return (
     <div className="grid grid-rows-9 h-[calc(100%-1px)] container">
-      <div className="flex justify-between items-center row-span-1 py-4">
-        <h1 className="font-bold text-xl">{permissionChat.chat.name}</h1>
-        <div className="flex items-center gap-2 h-20">
+      <div className="flex items-center row-span-1 py-4 w-full">
+        <h1 className="flex-1 col-span-5 line-clamp-1 font-bold text-xl">
+          {permissionChat.chat.name}
+        </h1>
+        <div className="flex items-center gap-2 col-span-3 h-20">
           {writePermissions.includes(permissionChat.role) && (
             <ChatInvitationDialog chatId={chatId} />
           )}

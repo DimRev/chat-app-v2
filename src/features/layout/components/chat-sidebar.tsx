@@ -24,7 +24,7 @@ function ChatSidebar() {
     return <div className="bg-muted/60 text-muted-foreground">Error</div>;
   return (
     <div className="bg-muted/60 text-muted-foreground">
-      <nav className="flex flex-col items-start">
+      <nav className="flex flex-col items-start line-clamp-1">
         {permissionChats.map((permissionChat) => (
           <Link
             key={permissionChat.id}
