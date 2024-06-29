@@ -51,8 +51,8 @@ function ChatWindow({ chatId }: Props) {
 
   if (messages.length === 0)
     return (
-      <div className="flex-1 grid grid-rows-10 my-2 px-4 pt-4 border rounded-sm">
-        <div className="row-span-9">No messages yet</div>
+      <div className="grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm overflow-hidden">
+        <div className="row-span-9 overflow-auto">No messages yet</div>
         <form
           onSubmit={onSubmit}
           className="items-center gap-2 grid grid-cols-6"
