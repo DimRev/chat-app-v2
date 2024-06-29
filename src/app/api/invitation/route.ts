@@ -1,4 +1,4 @@
-// app/api/join-chat/route.ts
+import "server-only";
 import { NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import { type RequestLike } from "node_modules/@clerk/nextjs/dist/types/server/types";

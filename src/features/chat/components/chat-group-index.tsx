@@ -5,6 +5,8 @@ import { useQueryGetUserChatById } from "../hooks/use-query-get-chat-by-id";
 import { Loader2 } from "lucide-react";
 import ChatWindow from "./chat-window";
 import ChatInvitationDialog from "./chat-invitation-dialog";
+import { Button } from "~/features/shared/components/ui/button";
+import ChatMembersDialog from "./chat-members-dialog";
 
 type Props = {
   chatId: string;
@@ -24,6 +26,7 @@ function ChatGroupIndex({ chatId }: Props) {
       </div>
     );
 
+  const writePermissions = ["owner", "admin"];
   if (!permissionChat) {
     router.push("/chat");
     return null;
@@ -32,7 +35,12 @@ function ChatGroupIndex({ chatId }: Props) {
     <div className="container">
       <div className="flex justify-between items-center py-4">
         <h1 className="font-bold text-xl">{permissionChat.chat.name}</h1>
-        <ChatInvitationDialog chatId={chatId} />
+        <div className="flex gap-2">
+          {writePermissions.includes(permissionChat.role) && (
+            <ChatInvitationDialog chatId={chatId} />
+          )}
+          <ChatMembersDialog chatId={chatId} />
+        </div>
       </div>
 
       <ChatWindow chatId={chatId} />
