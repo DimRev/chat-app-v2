@@ -1,8 +1,10 @@
-import { type FormEvent, useRef, useState } from "react";
+"use client";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { useMutationSendMessageToChat } from "../hooks/use-mutation-send-message-to-chat";
 import { useQueryGetMessagesByChatId } from "../hooks/use-query-get-messages-by-chat-id";
 import { Input } from "~/features/shared/components/ui/input";
 import { Button } from "~/features/shared/components/ui/button";
+import supabase from "~/lib/supabase";
 
 type Props = {
   chatId: string;
@@ -20,6 +22,27 @@ function ChatWindow({ chatId }: Props) {
     isPending: isSendMessageToChatPending,
   } = useMutationSendMessageToChat();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const channels = supabase
+      .channel("custom-all-channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "chat-app-v2_message",
+          filter: `chat_id=eq.${chatId}`, // Corrected filter syntax
+        },
+        () => {
+          void refetchMessages();
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channels);
+    };
+  }, [chatId, refetchMessages]);
 
   function focusInput() {
     if (inputRef.current) {
