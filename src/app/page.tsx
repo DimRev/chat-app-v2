@@ -2,8 +2,9 @@ function HomePage() {
   return (
     <main className="flex flex-1">
       <div className="container">
-        <div>
-          <h1>Home Page</h1>
+        <div className="py-4">
+          <h1 className="font-bold text-4xl">Chat App</h1>
+          <p></p>
         </div>
       </div>
     </main>
