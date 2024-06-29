@@ -72,7 +72,7 @@ function ChatWindow({ chatId }: Props) {
     );
 
   return (
-    <div className="flex-1 grid grid-rows-10 my-2 px-4 pt-4 border rounded-sm overflow-hidden">
+    <div className="grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm overflow-hidden">
       <div className="row-span-9 overflow-auto">
         {messages.map((message) => (
           <div key={message.id}>
