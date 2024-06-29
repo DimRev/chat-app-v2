@@ -20,4 +20,13 @@ export const messageRouter = createTRPCRouter({
 
       return chatMessages;
     }),
+  sendMessageToChat: protectedProcedure
+    .input(z.object({ chatId: z.string(), content: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.insert(messages).values({
+        authorId: ctx.user.id,
+        chatId: input.chatId,
+        content: input.content,
+      });
+    }),
 });

@@ -23,11 +23,13 @@ import {
 import { Input } from "~/features/shared/components/ui/input";
 import { newChatInputSchema } from "../chat.schema";
 import { useMutationAddChat } from "../hooks/use-mutation-add-chat";
+import { useQueryGetChats } from "../hooks/use-query-get-chats";
 
 function NewChatForm() {
   const [isOpen, setIsOpen] = useState(false);
   const { mutateAsync: addChat, isPending: isAddChatPending } =
     useMutationAddChat();
+  const { refetch: refetchChats } = useQueryGetChats();
   const form = useForm<z.infer<typeof newChatInputSchema>>({
     resolver: zodResolver(newChatInputSchema),
     defaultValues: {
@@ -39,6 +41,7 @@ function NewChatForm() {
   async function onSubmit(values: z.infer<typeof newChatInputSchema>) {
     try {
       await addChat(values);
+      await refetchChats();
       setIsOpen(false);
     } catch (err) {
       //TODO: setup err
