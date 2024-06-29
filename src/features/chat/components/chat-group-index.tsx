@@ -32,7 +32,7 @@ function ChatGroupIndex({ chatId }: Props) {
     <div className="container">
       <div className="flex justify-between items-center py-4">
         <h1 className="font-bold text-xl">{permissionChat.chat.name}</h1>
-        <ChatInvitationDialog />
+        <ChatInvitationDialog chatId={chatId} />
       </div>
 
       <ChatWindow chatId={chatId} />

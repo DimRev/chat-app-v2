@@ -20,6 +20,7 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
+    NEXT_PUBLIC_NEXT_URL: z.string().url(),
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
   },
 
@@ -31,6 +32,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     CLERK_WEBHOOK_SECRET: process.env.CLERK_WEBHOOK_SECRET,
+    NEXT_PUBLIC_NEXT_URL: process.env.NEXT_PUBLIC_NEXT_URL,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
