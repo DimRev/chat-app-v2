@@ -12,6 +12,12 @@ function ChatList() {
   if (isChatsLoading)
     return (
       <div className="border-collapse border rounded-sm">
+        <div className="grid grid-cols-6 bg-primary py-2 border border-b rounded-t-sm font-bold text-primary-foreground">
+          <div className="border-e col-span-2 px-2 truncate">Name</div>
+          <div className="border-e col-span-2 px-2 truncate">Description</div>
+          <div className="border-e col-span-1 px-2 truncate">Role</div>
+          <div className="border-e col-span-1 px-2 truncate">Members</div>
+        </div>
         {new Array(3).fill(null).map((_, idx) => (
           <div
             key={idx}
@@ -32,6 +38,12 @@ function ChatList() {
 
   return (
     <div className="border-collapse border rounded-sm">
+      <div className="grid grid-cols-6 bg-primary py-2 border rounded-t-sm font-bold text-primary-foreground">
+        <div className="border-e col-span-2 px-2 truncate">Name</div>
+        <div className="border-e col-span-2 px-2 truncate">Description</div>
+        <div className="border-e col-span-1 px-2 truncate">Role</div>
+        <div className="border-e col-span-1 px-2 truncate">Members</div>
+      </div>
       {permissionChats.map((permissionChat, idx) => (
         <Link
           key={permissionChat.id}
@@ -49,7 +61,12 @@ function ChatList() {
             <div className="border-e col-span-2 px-2 truncate">
               {permissionChat.chat.description}
             </div>
-            <div className="px-2 truncate">{permissionChat.role}</div>
+            <div className="border-e col-span-1 px-2 truncate">
+              {permissionChat.role}
+            </div>
+            <div className="col-span-1 px-2 truncate">
+              {permissionChat.userCount ? permissionChat.userCount : "0"}
+            </div>
           </div>
         </Link>
       ))}

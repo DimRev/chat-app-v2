@@ -3,7 +3,7 @@ import ChatIndex from "~/features/chat/components/chat-index";
 
 function ChatPage() {
   return (
-    <main className="col-span-7">
+    <main className="flex-1">
       <div className="container">
         <div>
           <ChatIndex />

@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, count, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { chats, userChatPermissions } from "~/server/db/schema";
@@ -8,14 +8,26 @@ export const chatRouter = createTRPCRouter({
   getUserChats: protectedProcedure
     .input(z.object({}))
     .query(async ({ ctx }) => {
-      const chats = await ctx.db.query.userChatPermissions.findMany({
+      const userChats = await ctx.db.query.userChatPermissions.findMany({
         where: eq(userChatPermissions.userId, ctx.user.id),
         with: {
           chat: true,
         },
       });
 
-      return chats;
+      const chatsWithUserCount = await Promise.all(
+        userChats.map(async (userChat) => {
+          const userCount = await ctx.db
+            .select({ count: sql<number>`cast(count(*) as integer)` })
+            .from(userChatPermissions)
+            .where(eq(userChatPermissions.chatId, userChat.chatId))
+            .then((res) => res[0]?.count);
+
+          return { ...userChat, userCount };
+        }),
+      );
+
+      return chatsWithUserCount;
     }),
   getUserChatById: protectedProcedure
     .input(z.object({ chatId: z.string() }))

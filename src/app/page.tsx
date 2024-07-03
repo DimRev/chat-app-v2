@@ -15,16 +15,16 @@ function HomePage() {
             including audio and video chat functionalities.
           </p>
           <div className="mb-8">
-            <div className="flex justify-center gap-2 mb-4">
+            <div className="flex max-lg:flex-col justify-center items-center gap-2 mx-10 mb-4">
               <img
                 src="https://utfs.io/f/b33f1e6f-003a-4955-be08-fab8d1330d2d-zex2pg.png"
                 alt="Chat App Rooms"
-                className="shadow-lg rounded-lg h-64 transition-transform object-cover hover:scale-105"
+                className="shadow-lg rounded-lg h-64 transition-transform object-contain hover:scale-105"
               />
               <img
                 src="https://utfs.io/f/785856e8-589b-4c08-a0a0-9b3714472c91-18znc.png"
                 alt="Chat App Invitations"
-                className="shadow-lg ml-4 rounded-lg h-64 transition-transform object-cover hover:scale-105"
+                className="shadow-lg ml-4 rounded-lg h-64 transition-transform object-contain hover:scale-105"
               />
             </div>
             <p className="mb-4 text-lg">
