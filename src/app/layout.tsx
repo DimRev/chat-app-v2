@@ -19,12 +19,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
-      <body className="relative flex flex-col w-dvw h-dvh overflow-hidden">
-        <div className="-z-50 absolute inset-0 bg-gradient-to-br from-gray-800/45 to-gray-500/75 shadow-lg skew-y-6 transform"></div>
+      <body>
         <ClerkProvider>
           <TRPCReactProvider>
-            <AppHeader />
-            {children}
+            <main className="flex flex-col w-dvw h-dvh overflow-auto">
+              <AppHeader />
+              {children}
+            </main>
           </TRPCReactProvider>
         </ClerkProvider>
       </body>

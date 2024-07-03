@@ -30,7 +30,7 @@ function ChatGroupIndex({ chatId }: Props) {
     return null;
   }
   return (
-    <div className="grid grid-rows-9 h-[calc(100%-1px)] container">
+    <div className="grid grid-rows-9 mx-20 w-full h-full">
       <div className="flex items-center row-span-1 py-4 w-full">
         <h1 className="flex-1 col-span-5 line-clamp-1 font-bold text-xl">
           {permissionChat.chat.name}
