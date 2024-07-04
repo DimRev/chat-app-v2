@@ -1,8 +1,9 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { invitations, userChatPermissions } from "~/server/db/schema";
+import { invitations } from "~/server/db/schema";
+import { isAdminOrOwner } from "~/server/lib/server-utils";
 
 export const invitationRouter = createTRPCRouter({
   getChatInvitations: protectedProcedure
@@ -22,22 +23,7 @@ export const invitationRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const permissions = await ctx.db.query.userChatPermissions.findFirst({
-        where: and(
-          eq(userChatPermissions.userId, ctx.user.id),
-          eq(userChatPermissions.chatId, input.chatId),
-        ),
-        columns: {
-          role: true,
-        },
-      });
-      const permittedRoles = ["admin", "owner"];
-      if (!permissions || !permittedRoles.includes(permissions.role)) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Unauthorized to create invitation link",
-        });
-      }
+      await isAdminOrOwner(ctx, input.chatId);
       const invitation = (
         await ctx.db
           .insert(invitations)
@@ -62,22 +48,7 @@ export const invitationRouter = createTRPCRouter({
   deleteInvitation: protectedProcedure
     .input(z.object({ invId: z.string(), chatId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const permissions = await ctx.db.query.userChatPermissions.findFirst({
-        where: and(
-          eq(userChatPermissions.userId, ctx.user.id),
-          eq(userChatPermissions.chatId, input.chatId),
-        ),
-        columns: {
-          role: true,
-        },
-      });
-      const permittedRoles = ["admin", "owner"];
-      if (!permissions || !permittedRoles.includes(permissions.role)) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Unauthorized to create invitation link",
-        });
-      }
+      await isAdminOrOwner(ctx, input.chatId);
       await ctx.db.delete(invitations).where(eq(invitations.id, input.invId));
     }),
 });

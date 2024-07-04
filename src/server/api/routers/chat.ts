@@ -3,6 +3,7 @@ import { and, count, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { chats, userChatPermissions } from "~/server/db/schema";
+import { isAdminOrOwner } from "~/server/lib/server-utils";
 
 export const chatRouter = createTRPCRouter({
   getUserChats: protectedProcedure

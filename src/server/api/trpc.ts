@@ -6,7 +6,7 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser, User } from "@clerk/nextjs/server";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import superjson from "superjson";
@@ -30,8 +30,8 @@ import { users } from "../db/schema";
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   return {
     db,
-    clerkUser: null,
-    user: null,
+    clerkUser: null as null | User,
+    user: null as null | typeof users.$inferSelect,
     ...opts,
   };
 };
