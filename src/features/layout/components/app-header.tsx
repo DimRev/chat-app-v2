@@ -13,9 +13,11 @@ import {
   SheetTrigger,
 } from "~/features/shared/components/ui/sheet";
 import { cn } from "~/lib/utils";
+import { usePathname } from "next/navigation";
 
 function AppHeader() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const pathname = usePathname();
 
   const handleSheetClose = () => {
     setIsSheetOpen(false);
@@ -62,7 +64,12 @@ function AppHeader() {
         </div>
       </header>
       {/* Mobile Header */}
-      <div className="top-[82px] right-5 z-10 absolute md:hidden">
+      <div
+        className={cn(
+          "absolute right-5 z-10 md:hidden",
+          pathname.includes("/chat/group") ? "top-[82px] " : "bottom-10",
+        )}
+      >
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
             <Button

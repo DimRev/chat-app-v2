@@ -13,11 +13,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "~/features/shared/components/ui/sheet";
+import { usePathname } from "next/navigation";
 
 function ChatSidebar() {
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
   const { data: permissionChats, isLoading: isChatsLoading } =
     useQueryGetChats();
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const pathname = usePathname();
 
   const handleSheetClose = () => {
     setIsSheetOpen(false);
@@ -59,7 +62,12 @@ function ChatSidebar() {
         </nav>
       </div>
       {/* Mobile sidebar */}
-      <div className="top-[82px] left-5 z-10 absolute md:hidden">
+      <div
+        className={cn(
+          " absolute left-5 z-10 md:hidden",
+          pathname.includes("/chat/group") ? "top-[82px]" : "bottom-10",
+        )}
+      >
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
             <Button
