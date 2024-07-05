@@ -19,8 +19,10 @@ function ChatMessagePreview({ message, currUserId, isLoading, dir }: Props) {
     return (
       <div
         className={cn(
-          "mx-2 mb-2 max-w-md overflow-hidden rounded-lg bg-white shadow-md",
-          dir ? "ms-auto" : "",
+          "mb-2 max-w-md overflow-hidden rounded-lg bg-white shadow-md",
+          dir
+            ? "me-auto ms-5 md:me-5 md:ms-auto"
+            : "me-5 ms-auto md:me-auto md:ms-5",
         )}
       >
         <div className="flex justify-between items-center gap-2 bg-muted px-4 py-2 font-bold text-gray-700">
@@ -48,8 +50,10 @@ function ChatMessagePreview({ message, currUserId, isLoading, dir }: Props) {
   return (
     <div
       className={cn(
-        "mx-2 mb-2 max-w-md overflow-hidden rounded-lg bg-white shadow-md",
-        message.authorId !== currUserId ? "ms-auto" : "",
+        "mb-2 max-w-md overflow-hidden rounded-lg bg-white shadow-md",
+        message.authorId !== currUserId
+          ? "me-auto ms-5 md:me-5 md:ms-auto"
+          : "me-5 ms-auto md:me-auto md:ms-5",
       )}
     >
       <div className="flex justify-between items-center bg-muted px-4 py-2 font-bold text-gray-700">
@@ -60,10 +64,15 @@ function ChatMessagePreview({ message, currUserId, isLoading, dir }: Props) {
           <span className="text-primary">{message.author.name}</span>
         </div>
         <span className="text-muted-foreground text-xs">
-          {message.createdAt.toLocaleString()}
+          {message.createdAt.toLocaleString("he-IL", {
+            month: "numeric",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+          })}
         </span>
       </div>
-      <div className="p-4 text-gray-700">{message.content}</div>
+      <p className="p-4 text-gray-700 max-md:text-sm">{message.content}</p>
     </div>
   );
 }

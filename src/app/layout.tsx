@@ -22,7 +22,7 @@ export default function RootLayout({
       <body>
         <ClerkProvider>
           <TRPCReactProvider>
-            <main className="flex flex-col w-dvw h-dvh overflow-auto">
+            <main className="relative flex flex-col w-dvw h-dvh overflow-auto">
               <AppHeader />
               {children}
             </main>

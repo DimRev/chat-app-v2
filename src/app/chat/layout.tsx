@@ -7,7 +7,7 @@ type Props = {
 
 function ChatLayout({ children }: Props) {
   return (
-    <main className="flex h-[calc(100%-52px)]">
+    <main className="relative flex h-[calc(100%-52px)] max-md:h-full">
       <ChatSidebar />
       {children}
     </main>
