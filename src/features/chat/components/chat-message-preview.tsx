@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Skeleton } from "~/features/shared/components/ui/skeleton";
 import { cn } from "~/lib/utils";
 import { type messages, type users } from "~/server/db/schema";
@@ -46,7 +47,12 @@ function ChatMessagePreview({ message, currUserId, isLoading, dir }: Props) {
       )}
     >
       <div className="flex justify-between items-center bg-muted px-4 py-2 font-bold text-gray-700">
-        <span className="text-primary">{message.author.name}</span>
+        <div className="flex items-center gap-2">
+          <Avatar>
+            <AvatarImage src={message.author.imageUrl} />
+          </Avatar>
+          <span className="text-primary">{message.author.name}</span>
+        </div>
         <span className="text-muted-foreground text-xs">
           {message.createdAt.toLocaleString()}
         </span>

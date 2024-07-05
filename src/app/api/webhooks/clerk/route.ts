@@ -60,6 +60,7 @@ export const POST = async (req: NextRequest) => {
         email_addresses: cu_email_addresses,
         username: cu_username,
         primary_email_address_id: cu_primary_email_address_id,
+        image_url: cu_image_url,
       } = evt.data;
 
       const cu_primaryEmailAddress = cu_email_addresses.find(
@@ -79,6 +80,7 @@ export const POST = async (req: NextRequest) => {
           clerkId: cu_id,
           email: cu_primaryEmailAddress,
           name: cu_username,
+          imageUrl: cu_image_url,
         });
       } catch (err) {
         console.log(err);
@@ -91,6 +93,7 @@ export const POST = async (req: NextRequest) => {
         username: uu_username,
         email_addresses: uu_email_addresses,
         primary_email_address_id: uu_primary_email_address_id,
+        image_url: uu_image_url,
       } = evt.data;
       const uu_primaryEmailAddress = uu_email_addresses.find(
         (emailAddress) => emailAddress.id === uu_primary_email_address_id,
@@ -109,6 +112,7 @@ export const POST = async (req: NextRequest) => {
         .set({
           email: uu_primaryEmailAddress,
           name: uu_username,
+          imageUrl: uu_image_url,
         })
         .where(eq(users.clerkId, uu_id));
       break;

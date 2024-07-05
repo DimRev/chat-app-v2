@@ -12,6 +12,7 @@ export const users = createTable("user", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull().unique(),
   email: text("email").notNull().unique(),
+  imageUrl: text("image_url").notNull().unique(), // Ensure this column has a unique constraint
   clerkId: text("clerk_id").notNull().unique(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updateAt: timestamp("updated_at").defaultNow().notNull(),
@@ -48,6 +49,12 @@ export const userChatPermissions = createTable(
     chatId: uuid("chat_id")
       .notNull()
       .references(() => chats.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    imageUrl: text("image_url")
+      .notNull()
+      .references(() => users.imageUrl, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
     role: text("role", {
       enum: ["owner", "admin", "elevated", "member"],
     })

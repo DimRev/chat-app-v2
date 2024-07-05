@@ -80,6 +80,7 @@ export const chatRouter = createTRPCRouter({
             .values({
               chatId: addedChat.id,
               userId: ctx.user.id,
+              imageUrl: ctx.user.imageUrl,
               role: "owner",
             })
             .returning({

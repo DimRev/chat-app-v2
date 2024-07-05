@@ -65,6 +65,7 @@ export async function GET(request: Request) {
       .values({
         chatId: invitation.chatId,
         userId: user.id,
+        imageUrl: user.imageUrl,
       })
       .returning({ chatId: userChatPermissions.chatId })
   )[0];

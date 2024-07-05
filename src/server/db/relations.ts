@@ -36,6 +36,10 @@ export const userChatPermissionsRelations = relations(
       fields: [userChatPermissions.userId],
       references: [users.id],
     }),
+    imageUrl: one(users, {
+      fields: [userChatPermissions.imageUrl],
+      references: [users.imageUrl],
+    }),
     chat: one(chats, {
       fields: [userChatPermissions.chatId],
       references: [chats.id],
