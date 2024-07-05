@@ -144,8 +144,11 @@ function ChatWindow({ chatId }: Props) {
 
   if (isMessagesLoading || isChatLoading)
     return (
-      <div className="grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm overflow-hidden">
-        <div className="row-span-9 overflow-auto" ref={messagesContainerRef}>
+      <div className="grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm w-full overflow-hidden">
+        <div
+          className="row-span-9 w-full overflow-auto"
+          ref={messagesContainerRef}
+        >
           <ChatMessagePreview isLoading={true} dir={false} />
           <ChatMessagePreview isLoading={true} dir={true} />
           <ChatMessagePreview isLoading={true} dir={false} />
@@ -181,8 +184,11 @@ function ChatWindow({ chatId }: Props) {
 
   if (messages.length === 0)
     return (
-      <div className="grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm overflow-hidden">
-        <div className="row-span-9 overflow-auto" ref={messagesContainerRef}>
+      <div className="grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm w-full overflow-hidden">
+        <div
+          className="row-span-9 w-full overflow-auto"
+          ref={messagesContainerRef}
+        >
           No messages yet
         </div>
         <form onSubmit={onSubmit} className="flex items-center gap-2">
@@ -210,8 +216,11 @@ function ChatWindow({ chatId }: Props) {
     );
 
   return (
-    <div className="grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm overflow-hidden">
-      <div className="row-span-9 overflow-auto" ref={messagesContainerRef}>
+    <div className="grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm w-full overflow-hidden">
+      <div
+        className="row-span-9 w-full overflow-auto"
+        ref={messagesContainerRef}
+      >
         {messages.map((message) => (
           <ChatMessagePreview
             message={message}
