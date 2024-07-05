@@ -15,21 +15,34 @@ type Props = {
 
 function ChatWindow({ chatId }: Props) {
   const [content, setContent] = useState("");
+  const [isFirstMount, setIsFirstMount] = useState(true);
+  const [isUserSubmitted, setIsUserSubmitted] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(true);
+
   const {
     data: messages,
     isLoading: isMessagesLoading,
     refetch: refetchMessages,
+    isSuccess,
   } = useQueryGetMessagesByChatId({ chatId });
+
   const {
     mutateAsync: sendMessageToChat,
     isPending: isSendMessageToChatPending,
   } = useMutationSendMessageToChat();
+
   const { data: permissionChat, isLoading: isChatLoading } =
     useQueryGetUserChatById({
       chatId,
     });
-  const inputRef = useRef<HTMLInputElement>(null);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Supabase websocket listening to update on messages on given chatroom
+   */
   useEffect(() => {
     const channels = supabase
       .channel("custom-all-channel")
@@ -50,6 +63,50 @@ function ChatWindow({ chatId }: Props) {
       void supabase.removeChannel(channels);
     };
   }, [chatId, refetchMessages]);
+
+  /**
+   * Create listener to message window scroll, and update AtBottom state
+   */
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!messagesContainerRef.current) return;
+      const { scrollTop, scrollHeight, clientHeight } =
+        messagesContainerRef.current;
+      setIsAtBottom(scrollTop + clientHeight >= scrollHeight - 50);
+    };
+
+    const messagesContainer = messagesContainerRef.current;
+    if (messagesContainer) {
+      messagesContainer.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (messagesContainer) {
+        messagesContainer.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, []);
+
+  /**
+   * Scroll behavior:
+   * - User submit message: Scroll down
+   * - User at the bottom of the scroll bar, scroll down when a message is coming
+   * - Mount Scroll down
+   *
+   * If another user sent a message while the user isn't at the bottom the user won't scroll down
+   */
+  useEffect(() => {
+    if (messages && messagesContainerRef.current && messagesEndRef.current) {
+      if (isFirstMount || isUserSubmitted) {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        setIsFirstMount(false);
+        setIsUserSubmitted(false);
+      } else if (isAtBottom) {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, isFirstMount, isSuccess, isAtBottom]);
 
   function focusInput() {
     if (inputRef.current) {
@@ -72,6 +129,7 @@ function ChatWindow({ chatId }: Props) {
       }
       return;
     }
+    setIsUserSubmitted(true);
     await sendMessageToChat(
       { chatId, content },
       {
@@ -85,11 +143,12 @@ function ChatWindow({ chatId }: Props) {
   if (isMessagesLoading || isChatLoading)
     return (
       <div className="grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm overflow-hidden">
-        <div className="row-span-9 overflow-auto">
+        <div className="row-span-9 overflow-auto" ref={messagesContainerRef}>
           <ChatMessagePreview isLoading={true} dir={false} />
           <ChatMessagePreview isLoading={true} dir={true} />
           <ChatMessagePreview isLoading={true} dir={false} />
           <ChatMessagePreview isLoading={true} dir={true} />
+          <div ref={messagesEndRef} />
         </div>
         <form onSubmit={onSubmit} className="flex items-center gap-2">
           <Input
@@ -121,7 +180,9 @@ function ChatWindow({ chatId }: Props) {
   if (messages.length === 0)
     return (
       <div className="grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm overflow-hidden">
-        <div className="row-span-9 overflow-auto">No messages yet</div>
+        <div className="row-span-9 overflow-auto" ref={messagesContainerRef}>
+          No messages yet
+        </div>
         <form onSubmit={onSubmit} className="flex items-center gap-2">
           <Input
             ref={inputRef}
@@ -148,7 +209,7 @@ function ChatWindow({ chatId }: Props) {
 
   return (
     <div className="grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm overflow-hidden">
-      <div className="row-span-9 overflow-auto">
+      <div className="row-span-9 overflow-auto" ref={messagesContainerRef}>
         {messages.map((message) => (
           <ChatMessagePreview
             message={message}
@@ -156,6 +217,7 @@ function ChatWindow({ chatId }: Props) {
             currUserId={permissionChat.userId}
           />
         ))}
+        <div ref={messagesEndRef}></div>
       </div>
       <form onSubmit={onSubmit} className="flex items-center gap-2">
         <Input
