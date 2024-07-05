@@ -98,7 +98,7 @@ function ChatWindow({ chatId }: Props) {
   useEffect(() => {
     if (messages && messagesContainerRef.current && messagesEndRef.current) {
       if (isFirstMount || isUserSubmitted) {
-        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current.scrollIntoView({ behavior: "instant" });
         setIsFirstMount(false);
         setIsUserSubmitted(false);
       } else if (isAtBottom) {
