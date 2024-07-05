@@ -100,6 +100,8 @@ function ChatWindow({ chatId }: Props) {
       if (isFirstMount || isUserSubmitted) {
         messagesEndRef.current.scrollIntoView({ behavior: "instant" });
         setIsFirstMount(false);
+      } else if (isUserSubmitted) {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
         setIsUserSubmitted(false);
       } else if (isAtBottom) {
         messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
