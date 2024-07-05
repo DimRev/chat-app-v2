@@ -1,14 +1,28 @@
 "use client";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { Button, buttonVariants } from "~/features/shared/components/ui/button";
 import { cn } from "~/lib/utils";
 import { useQueryGetChats } from "~/features/chat/hooks/use-query-get-chats";
 import { Group, Loader2 } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "~/features/shared/components/ui/sheet";
 
 function ChatSidebar() {
   const { data: permissionChats, isLoading: isChatsLoading } =
     useQueryGetChats();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  const handleSheetClose = () => {
+    setIsSheetOpen(false);
+  };
+
   if (isChatsLoading)
     return (
       <div className="max-md:hidden bg-muted/60 text-muted-foreground">
@@ -20,12 +34,14 @@ function ChatSidebar() {
         </nav>
       </div>
     );
+
   if (!permissionChats)
     return (
       <div className="max-md:hidden bg-muted/60 text-muted-foreground">
         Error
       </div>
     );
+
   return (
     <>
       {/* Desktop sidebar */}
@@ -44,9 +60,36 @@ function ChatSidebar() {
       </div>
       {/* Mobile sidebar */}
       <div className="top-[82px] left-5 z-10 absolute md:hidden">
-        <Button size="icon" className="size-10">
-          <Group />
-        </Button>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetTrigger asChild>
+            <Button
+              size="icon"
+              className="size-10"
+              onClick={() => setIsSheetOpen(true)}
+            >
+              <Group />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-dvw">
+            <SheetHeader>
+              <SheetTitle>Groups</SheetTitle>
+              <SheetDescription>
+                <nav className="flex flex-col items-start line-clamp-1">
+                  {permissionChats.map((permissionChat) => (
+                    <Link
+                      key={permissionChat.id}
+                      href={`/chat/group/${permissionChat.chatId}`}
+                      className={cn(buttonVariants({ variant: "link" }))}
+                      onClick={handleSheetClose}
+                    >
+                      {permissionChat.chat.name}
+                    </Link>
+                  ))}
+                </nav>
+              </SheetDescription>
+            </SheetHeader>
+          </SheetContent>
+        </Sheet>
       </div>
     </>
   );
