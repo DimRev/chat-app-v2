@@ -1,10 +1,13 @@
 "use client";
 import { type FormEvent, useEffect, useRef, useState } from "react";
-import { useMutationSendMessageToChat } from "../hooks/use-mutation-send-message-to-chat";
-import { useQueryGetMessagesByChatId } from "../hooks/use-query-get-messages-by-chat-id";
-import { Input } from "~/features/shared/components/ui/input";
 import { Button } from "~/features/shared/components/ui/button";
+import { Input } from "~/features/shared/components/ui/input";
 import supabase from "~/lib/supabase";
+import { useMutationSendMessageToChat } from "../hooks/use-mutation-send-message-to-chat";
+import { useQueryGetUserChatById } from "../hooks/use-query-get-chat-by-id";
+import { useQueryGetMessagesByChatId } from "../hooks/use-query-get-messages-by-chat-id";
+import ChatMessagePreview from "./chat-message-preview";
+import { SmileIcon } from "lucide-react";
 
 type Props = {
   chatId: string;
@@ -21,6 +24,10 @@ function ChatWindow({ chatId }: Props) {
     mutateAsync: sendMessageToChat,
     isPending: isSendMessageToChatPending,
   } = useMutationSendMessageToChat();
+  const { data: permissionChat, isLoading: isChatLoading } =
+    useQueryGetUserChatById({
+      chatId,
+    });
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -58,6 +65,13 @@ function ChatWindow({ chatId }: Props) {
 
   const onSubmit = async (ev: FormEvent) => {
     ev.preventDefault();
+    if (content.trim() === "") {
+      if (inputRef.current) {
+        setContent("");
+        inputRef.current.focus();
+      }
+      return;
+    }
     await sendMessageToChat(
       { chatId, content },
       {
@@ -68,28 +82,66 @@ function ChatWindow({ chatId }: Props) {
     );
   };
 
-  if (isMessagesLoading) return <div>Loading...</div>;
-
-  if (!messages) return <div>Error</div>;
-
-  if (messages.length === 0)
+  if (isMessagesLoading || isChatLoading)
     return (
       <div className="grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm overflow-hidden">
-        <div className="row-span-9 overflow-auto">No messages yet</div>
-        <form
-          onSubmit={onSubmit}
-          className="items-center gap-2 grid grid-cols-6"
-        >
+        <div className="row-span-9 overflow-auto">
+          <ChatMessagePreview isLoading={true} dir={false} />
+          <ChatMessagePreview isLoading={true} dir={true} />
+          <ChatMessagePreview isLoading={true} dir={false} />
+          <ChatMessagePreview isLoading={true} dir={true} />
+        </div>
+        <form onSubmit={onSubmit} className="flex items-center gap-2">
           <Input
             ref={inputRef}
             onChange={(ev) => setContent(ev.target.value)}
             value={content}
             disabled={isSendMessageToChatPending}
-            className="col-span-5"
+            className="flex-1"
           />
-          <Button disabled={isSendMessageToChatPending} type="submit">
-            {isSendMessageToChatPending ? "sending..." : "send"}
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              size="icon"
+              type="button"
+              disabled
+              className="bg-yellow-400 hover:bg-yellow-300 text-black hover:text-zinc-800"
+            >
+              <SmileIcon />
+            </Button>
+            <Button disabled type="submit">
+              {isSendMessageToChatPending ? "sending..." : "send"}
+            </Button>
+          </div>
+        </form>
+      </div>
+    );
+
+  if (!messages || !permissionChat) return <div>Error</div>;
+
+  if (messages.length === 0)
+    return (
+      <div className="grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm overflow-hidden">
+        <div className="row-span-9 overflow-auto">No messages yet</div>
+        <form onSubmit={onSubmit} className="flex items-center gap-2">
+          <Input
+            ref={inputRef}
+            onChange={(ev) => setContent(ev.target.value)}
+            value={content}
+            disabled={isSendMessageToChatPending}
+            className="flex-1"
+          />
+          <div className="flex items-center gap-1">
+            <Button
+              size="icon"
+              type="button"
+              className="bg-yellow-400 hover:bg-yellow-300 text-black hover:text-zinc-800"
+            >
+              <SmileIcon />
+            </Button>
+            <Button disabled={isSendMessageToChatPending} type="submit">
+              {isSendMessageToChatPending ? "sending..." : "send"}
+            </Button>
+          </div>
         </form>
       </div>
     );
@@ -98,26 +150,33 @@ function ChatWindow({ chatId }: Props) {
     <div className="grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm overflow-hidden">
       <div className="row-span-9 overflow-auto">
         {messages.map((message) => (
-          <div key={message.id}>
-            <div className="flex justify-between gap-4 bg-muted/15 px-1 py-1 font-extrabold text-muted-foreground">
-              <span className="text-primary">{message.author.name}</span>
-              {message.createdAt.toLocaleString()}
-            </div>
-            <div className="p-1">{message.content}</div>
-          </div>
+          <ChatMessagePreview
+            message={message}
+            key={message.id}
+            currUserId={permissionChat.userId}
+          />
         ))}
       </div>
-      <form onSubmit={onSubmit} className="items-center gap-2 grid grid-cols-6">
+      <form onSubmit={onSubmit} className="flex items-center gap-2">
         <Input
           ref={inputRef}
           onChange={(ev) => setContent(ev.target.value)}
           value={content}
           disabled={isSendMessageToChatPending}
-          className="col-span-5"
+          className="flex-1"
         />
-        <Button disabled={isSendMessageToChatPending} type="submit">
-          {isSendMessageToChatPending ? "sending..." : "send"}
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            size="icon"
+            type="button"
+            className="bg-yellow-400 hover:bg-yellow-300 text-black hover:text-zinc-800"
+          >
+            <SmileIcon />
+          </Button>
+          <Button disabled={isSendMessageToChatPending} type="submit">
+            {isSendMessageToChatPending ? "sending..." : "send"}
+          </Button>
+        </div>
       </form>
     </div>
   );
