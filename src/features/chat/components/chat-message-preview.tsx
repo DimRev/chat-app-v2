@@ -1,5 +1,5 @@
 "use client";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
 import { Skeleton } from "~/features/shared/components/ui/skeleton";
 import { cn } from "~/lib/utils";
 import { type messages, type users } from "~/server/db/schema";
@@ -24,9 +24,15 @@ function ChatMessagePreview({ message, currUserId, isLoading, dir }: Props) {
         )}
       >
         <div className="flex justify-between items-center gap-2 bg-muted px-4 py-2 font-bold text-gray-700">
-          <span className="flex-[6] w-full text-primary">
-            <Skeleton className="w-full">&nbsp;</Skeleton>
-          </span>
+          <div className="flex items-center gap-2">
+            <Skeleton className="rounded-full overflow-hidden size-10">
+              &nbsp;
+            </Skeleton>
+            <span className="flex-[6] w-full text-primary">
+              <Skeleton className="w-full">&nbsp;</Skeleton>
+            </span>
+          </div>
+
           <span className="flex-[3] w-full text-muted-foreground">
             <Skeleton className="w-full">&nbsp;</Skeleton>
           </span>
@@ -48,7 +54,7 @@ function ChatMessagePreview({ message, currUserId, isLoading, dir }: Props) {
     >
       <div className="flex justify-between items-center bg-muted px-4 py-2 font-bold text-gray-700">
         <div className="flex items-center gap-2">
-          <Avatar>
+          <Avatar className="rounded-full overflow-hidden size-10">
             <AvatarImage src={message.author.imageUrl} />
           </Avatar>
           <span className="text-primary">{message.author.name}</span>
