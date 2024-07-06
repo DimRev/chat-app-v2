@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useEffect } from "react";
 import { Skeleton } from "~/features/shared/components/ui/skeleton";
+import { useTrpcError } from "~/features/shared/hooks/use-trpc-error";
 import { cn } from "~/lib/utils";
 import { useQueryGetChats } from "../hooks/use-query-get-chats";
 
@@ -12,13 +12,7 @@ function ChatList() {
     error: chatsError,
   } = useQueryGetChats();
 
-  useEffect(() => {
-    if (chatsError) {
-      console.error(
-        `ERROR STATUS ${chatsError.data?.httpStatus} | ${chatsError.data?.code} : ${chatsError.message}`,
-      );
-    }
-  }, [chatsError]);
+  const { formattedErrors } = useTrpcError(chatsError);
 
   if (isChatsLoading)
     return (
@@ -43,7 +37,13 @@ function ChatList() {
       </div>
     );
 
-  if (!permissionChats) return <div>Error!</div>;
+  if (!permissionChats || formattedErrors)
+    return (
+      <div>
+        <h1>Error!</h1>
+        {formattedErrors}
+      </div>
+    );
 
   if (permissionChats.length === 0) return <div>Empty</div>;
 
