@@ -1,13 +1,24 @@
 "use client";
-import React from "react";
-import { useQueryGetChats } from "../hooks/use-query-get-chats";
-import { cn } from "~/lib/utils";
-import { Skeleton } from "~/features/shared/components/ui/skeleton";
 import Link from "next/link";
+import { useEffect } from "react";
+import { Skeleton } from "~/features/shared/components/ui/skeleton";
+import { cn } from "~/lib/utils";
+import { useQueryGetChats } from "../hooks/use-query-get-chats";
 
 function ChatList() {
-  const { data: permissionChats, isLoading: isChatsLoading } =
-    useQueryGetChats();
+  const {
+    data: permissionChats,
+    isLoading: isChatsLoading,
+    error: chatsError,
+  } = useQueryGetChats();
+
+  useEffect(() => {
+    if (chatsError) {
+      console.error(
+        `ERROR STATUS ${chatsError.data?.httpStatus} | ${chatsError.data?.code} : ${chatsError.message}`,
+      );
+    }
+  }, [chatsError]);
 
   if (isChatsLoading)
     return (

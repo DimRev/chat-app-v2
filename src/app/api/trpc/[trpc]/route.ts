@@ -1,4 +1,5 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import { getHTTPStatusCodeFromError } from "@trpc/server/unstable-core-do-not-import";
 import { type NextRequest } from "next/server";
 
 import { env } from "~/env";
@@ -25,10 +26,14 @@ const handler = (req: NextRequest) =>
       env.NODE_ENV === "development"
         ? ({ path, error }) => {
             console.error(
-              `❌ tRPC failed on ${path ?? "<no-path>"}: ${error.message}`
+              `❌ tRPC code ${getHTTPStatusCodeFromError(error)} failed on ${path ?? "<no-path>"}: ${error.message}`,
             );
           }
-        : undefined,
+        : ({ error }) => {
+            console.error(
+              `❌ ERROR STATUS ${getHTTPStatusCodeFromError(error)}: ${error.message}`,
+            );
+          },
   });
 
 export { handler as GET, handler as POST };

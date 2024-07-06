@@ -5,6 +5,7 @@
   - [x] Edit user role
   - [ ] Remove chat group
 - [x] Edit invitation links permissions & logic
+- [ ] Setup errors
 - [ ] Implement the emoji button
 - [ ] Add notifications when user joins the chat & leaves the chat
 - [ ] Display online users in the chat / logged in to the website and logged into the group
