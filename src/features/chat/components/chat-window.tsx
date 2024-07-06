@@ -10,9 +10,20 @@ import ChatMessagePreview from "./chat-message-preview";
 import { SmileIcon } from "lucide-react";
 import { useSession } from "@clerk/nextjs";
 import { useToast } from "~/features/shared/components/ui/use-toast";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/features/shared/components/ui/popover";
 
 type Props = {
   chatId: string;
+};
+
+type Presence = {
+  presence_ref?: string;
+  userName?: string;
+  online?: boolean;
 };
 
 function ChatWindow({ chatId }: Props) {
@@ -78,9 +89,9 @@ function ChatWindow({ chatId }: Props) {
         const state = userJoinChannel.presenceState();
         const users = new Set<string>();
         for (const key in state) {
-          const presence = state?.[key]?.[0];
-          if (presence?.presence_ref) {
-            users.add(presence.presence_ref);
+          const presence = state?.[key]?.[0] as Presence;
+          if (presence?.userName) {
+            users.add(presence.userName);
           }
         }
         setConnectedUsers(users);
@@ -302,12 +313,26 @@ function ChatWindow({ chatId }: Props) {
         className="row-span-9 w-full overflow-auto"
         ref={messagesContainerRef}
       >
-        <div className="top-2 left-2 absolute flex items-center gap-1 bg-green-700 shadow px-2 py-1 rounded-sm font-bold text-gray-200">
-          <span className="bg-green-400 shadow-sm px-2.5 py-0.5 rounded-full text-gray-500">
-            {connectedUsers.size}
-          </span>
-          <span>Users Online</span>
-        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button className="top-2 left-2 absolute flex items-center gap-1 bg-green-700 shadow px-2 py-1 rounded-sm font-bold text-gray-200">
+              <span className="bg-green-400 shadow-sm px-2.5 py-0.5 rounded-full text-gray-500">
+                {connectedUsers.size}
+              </span>
+              <span>Users Online</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <ul>
+              {Array.from(connectedUsers).map((userName) => (
+                <li key={userName} className="flex items-center gap-2">
+                  <div className="content-[''] border-zinc-700/40 bg-green-400 shadow-sm border rounded-full size-4"></div>
+                  <span>{userName}</span>
+                </li>
+              ))}
+            </ul>
+          </PopoverContent>
+        </Popover>
         {messages.map((message) => (
           <ChatMessagePreview
             message={message}
