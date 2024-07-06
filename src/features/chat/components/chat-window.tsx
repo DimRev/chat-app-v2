@@ -20,6 +20,7 @@ function ChatWindow({ chatId }: Props) {
   const [isFirstMount, setIsFirstMount] = useState(true);
   const [isUserSubmitted, setIsUserSubmitted] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const [connectedUsers, setConnectedUsers] = useState<Set<string>>(new Set());
 
   const { session } = useSession();
   const { toast } = useToast();
@@ -48,6 +49,8 @@ function ChatWindow({ chatId }: Props) {
    * Supabase websocket listening to update on messages on given chatroom
    */
   useEffect(() => {
+    let hasSyncedInitially = false;
+
     // Subscribe to message received channel
     const messageReceivedChannel = supabase
       .channel("custom-all-channel")
@@ -66,50 +69,78 @@ function ChatWindow({ chatId }: Props) {
       .subscribe();
 
     // Subscribe to user join channel
-    const userJoinChannel = supabase.channel(`user-join-${chatId}`);
-
-    void userJoinChannel.subscribe((status) => {
-      if (status === "SUBSCRIBED") {
-        void userJoinChannel.send({
-          type: "broadcast",
-          event: "user-joined",
-          userName: session?.user.username,
-        });
-      }
+    const userJoinChannel = supabase.channel(`user-join-${chatId}`, {
+      config: { presence: { key: session!.user.id } },
     });
 
-    // Listen for user-joined event
-    const userJoinedListener = supabase
-      .channel(`user-join-${chatId}`)
-      .on("broadcast", { event: "user-joined" }, (payload) => {
-        toast({
-          title: "Member joined",
-          description: `${payload.userName} joined the chat`,
-          variant: "memberJoined",
-        });
+    void userJoinChannel
+      .on("presence", { event: "sync" }, () => {
+        const state = userJoinChannel.presenceState();
+        const users = new Set<string>();
+        for (const key in state) {
+          const presence = state?.[key]?.[0];
+          if (presence?.presence_ref) {
+            users.add(presence.presence_ref);
+          }
+        }
+        setConnectedUsers(users);
+        hasSyncedInitially = true;
       })
-      .on("broadcast", { event: "user-left" }, (payload) => {
-        toast({
-          title: "Member left",
-          description: `${payload.userName} left the chat`,
-          variant: "memberLeft",
-        });
+      .on("presence", { event: "join" }, ({ newPresences }) => {
+        if (hasSyncedInitially) {
+          newPresences.forEach((presence) => {
+            if (presence.userName !== session?.user.username) {
+              toast({
+                title: "Member joined",
+                description: `${presence.userName} joined the chat`,
+                variant: "memberJoined",
+              });
+            }
+            setConnectedUsers(
+              (prevUsers) =>
+                new Set(prevUsers.add(presence.userName as string)),
+            );
+          });
+        }
+      })
+      .on("presence", { event: "leave" }, ({ leftPresences }) => {
+        if (hasSyncedInitially) {
+          leftPresences.forEach((presence) => {
+            if (presence.userName !== session?.user.username) {
+              toast({
+                title: "Member left",
+                description: `${presence.userName} left the chat`,
+                variant: "memberLeft",
+              });
+            }
+            setConnectedUsers((prevUsers) => {
+              const updatedUsers = new Set(prevUsers);
+              updatedUsers.delete(presence.userName as string);
+              return updatedUsers;
+            });
+          });
+        }
+      })
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await userJoinChannel.track({
+            userName: session?.user.username,
+          });
+        }
       });
 
     return () => {
-      // Send user left event to channel close
       if (userJoinChannel) {
-        void userJoinChannel.send({
-          type: "broadcast",
-          event: "user-left",
+        void userJoinChannel.track({
           userName: session?.user.username,
+          online: false,
         });
       }
 
       // Clean up subscriptions on component unmount
       void supabase.removeChannel(messageReceivedChannel);
       void supabase.removeChannel(userJoinChannel);
-      void supabase.removeChannel(userJoinedListener);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatId, refetchMessages]);
@@ -266,11 +297,17 @@ function ChatWindow({ chatId }: Props) {
     );
 
   return (
-    <div className="grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm w-full overflow-hidden">
+    <div className="relative grid grid-rows-10 row-span-7 my-2 px-4 pt-4 border rounded-sm w-full overflow-hidden">
       <div
         className="row-span-9 w-full overflow-auto"
         ref={messagesContainerRef}
       >
+        <div className="top-2 left-2 absolute flex items-center gap-1 bg-green-700 shadow px-2 py-1 rounded-sm font-bold text-gray-200">
+          <span className="bg-green-400 shadow-sm px-2.5 py-0.5 rounded-full text-gray-500">
+            {connectedUsers.size}
+          </span>
+          <span>Users Online</span>
+        </div>
         {messages.map((message) => (
           <ChatMessagePreview
             message={message}
