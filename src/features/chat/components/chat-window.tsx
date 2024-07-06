@@ -8,6 +8,8 @@ import { useQueryGetUserChatById } from "../hooks/use-query-get-chat-by-id";
 import { useQueryGetMessagesByChatId } from "../hooks/use-query-get-messages-by-chat-id";
 import ChatMessagePreview from "./chat-message-preview";
 import { SmileIcon } from "lucide-react";
+import { useSession } from "@clerk/nextjs";
+import { useToast } from "~/features/shared/components/ui/use-toast";
 
 type Props = {
   chatId: string;
@@ -19,6 +21,8 @@ function ChatWindow({ chatId }: Props) {
   const [isUserSubmitted, setIsUserSubmitted] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
 
+  const { session } = useSession();
+  const { toast } = useToast();
   const {
     data: messages,
     isLoading: isMessagesLoading,
@@ -44,7 +48,8 @@ function ChatWindow({ chatId }: Props) {
    * Supabase websocket listening to update on messages on given chatroom
    */
   useEffect(() => {
-    const channels = supabase
+    // Subscribe to message received channel
+    const messageReceivedChannel = supabase
       .channel("custom-all-channel")
       .on(
         "postgres_changes",
@@ -52,16 +57,61 @@ function ChatWindow({ chatId }: Props) {
           event: "*",
           schema: "public",
           table: "chat-app-v2_message",
-          filter: `chat_id=eq.${chatId}`, // Corrected filter syntax
+          filter: `chat_id=eq.${chatId}`,
         },
         () => {
           void refetchMessages();
         },
       )
       .subscribe();
+
+    // Subscribe to user join channel
+    const userJoinChannel = supabase.channel(`user-join-${chatId}`);
+
+    void userJoinChannel.subscribe((status) => {
+      if (status === "SUBSCRIBED") {
+        void userJoinChannel.send({
+          type: "broadcast",
+          event: "user-joined",
+          userName: session?.user.username,
+        });
+      }
+    });
+
+    // Listen for user-joined event
+    const userJoinedListener = supabase
+      .channel(`user-join-${chatId}`)
+      .on("broadcast", { event: "user-joined" }, (payload) => {
+        toast({
+          title: "Member joined",
+          description: `${payload.userName} joined the chat`,
+          variant: "memberJoined",
+        });
+      })
+      .on("broadcast", { event: "user-left" }, (payload) => {
+        toast({
+          title: "Member left",
+          description: `${payload.userName} left the chat`,
+          variant: "memberLeft",
+        });
+      });
+
     return () => {
-      void supabase.removeChannel(channels);
+      // Send user left event to channel close
+      if (userJoinChannel) {
+        void userJoinChannel.send({
+          type: "broadcast",
+          event: "user-left",
+          userName: session?.user.username,
+        });
+      }
+
+      // Clean up subscriptions on component unmount
+      void supabase.removeChannel(messageReceivedChannel);
+      void supabase.removeChannel(userJoinChannel);
+      void supabase.removeChannel(userJoinedListener);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatId, refetchMessages]);
 
   /**
