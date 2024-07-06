@@ -5,6 +5,7 @@ import { GeistSans } from "geist/font/sans";
 import { TRPCReactProvider } from "~/trpc/react";
 import { ClerkProvider } from "@clerk/nextjs";
 import AppHeader from "~/features/layout/components/app-header";
+import { Toaster } from "~/features/shared/components/ui/toaster";
 
 export const metadata = {
   title: "Chat App",
@@ -25,6 +26,7 @@ export default function RootLayout({
             <main className="relative flex flex-col w-dvw h-dvh overflow-auto">
               <AppHeader />
               {children}
+              <Toaster />
             </main>
           </TRPCReactProvider>
         </ClerkProvider>

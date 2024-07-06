@@ -11,7 +11,6 @@ function ChatList() {
     isLoading: isChatsLoading,
     error: chatsError,
   } = useQueryGetChats();
-
   const { formattedErrors } = useTrpcError(chatsError);
 
   if (isChatsLoading)
