@@ -24,26 +24,57 @@
 
 ### 📌 TODO
 
+---
+
+**_🚨 HIGH PRIORITY 🚨_**
+
+- [ ] Load only (x) amount of posts, load more posts on scroll up
+- [ ] Setup a few global groups for all members on the chat app (Global:General, Global:Dev, Global:Design, etc)
+
+---
+
+**_🤷‍♂️ MEDIUM PRIORITY 🤷‍♂️_**
+
+- [ ] Setup friends
+  - [ ] Setup private messages between friends
+- [ ] "Remember" last read post and automatically focus the page on it, when loading the posts load up to (x) posts above and below it.
+- [ ] Have a notification about (x) new posts
+- [ ] Split Dev & Production environments (repo branch for dev(test & staging), with supabase & clerk dev envs)
+
+---
+
+**_💤 LOW PRIORITY 💤_**
+
 - [ ] Add CRUD operations to users and chat groups, Missing so far:
   - [x] Remove user
   - [x] Edit user role
   - [ ] Remove chat group
-- [x] Edit invitation links permissions & logic
-- [x] Setup errors
 - [ ] Implement the emoji button
-- [x] Add notifications when user joins the chat & leaves the chat
-- [x] Display online users in the chat / logged in to the website and logged into the group
-- [ ] Setup friends
-- [ ] Setup private messages between friends
-- [ ] Load only (x) amount of posts, load more posts on scroll up
-- [ ] "Remember" last read post and automatically focus the page on it, when loading the posts load up to (x) posts above and below it.
-- [ ] Have a notification about (x) new posts
+
+**_🚧 HOPES & DREAMS 🚧_**
+
+- [ ] Implement webRTC for video chat and audio chat
 
 ---
 
-### 🐛 BUGS and Backlog
+**_ 🎊 COMPLETED 🎊_**
+
+- [x] Display online users in the chat / logged in to the website and logged into the group
+- [x] Add notifications when user joins the chat & leaves the chat
+- [x] Setup errors
+- [x] Edit invitation links permissions & logic
+
+---
+
+**_🐛 BUGS and Backlog 🐛_**
 
 - [ ] Chat window sometimes locks in the bottom
+
+---
+
+## Version History
+
+0.1.0 - Initial Release
 
 ---
 
