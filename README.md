@@ -31,8 +31,8 @@
 - [x] Edit invitation links permissions & logic
 - [x] Setup errors
 - [ ] Implement the emoji button
-- [ ] Add notifications when user joins the chat & leaves the chat
-- [ ] Display online users in the chat / logged in to the website and logged into the group
+- [x] Add notifications when user joins the chat & leaves the chat
+- [x] Display online users in the chat / logged in to the website and logged into the group
 - [ ] Setup friends
 - [ ] Setup private messages between friends
 - [ ] Load only (x) amount of posts, load more posts on scroll up

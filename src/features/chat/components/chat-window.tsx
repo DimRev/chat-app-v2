@@ -15,6 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/features/shared/components/ui/popover";
+import { useTrpcError } from "~/features/shared/hooks/use-trpc-error";
 
 type Props = {
   chatId: string;
@@ -32,6 +33,7 @@ function ChatWindow({ chatId }: Props) {
   const [isUserSubmitted, setIsUserSubmitted] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [connectedUsers, setConnectedUsers] = useState<Set<string>>(new Set());
+  const [isRefetchingOwnMessage, setIsRefetchingOwnMessage] = useState(false);
 
   const { session } = useSession();
   const { toast } = useToast();
@@ -39,30 +41,41 @@ function ChatWindow({ chatId }: Props) {
     data: messages,
     isLoading: isMessagesLoading,
     refetch: refetchMessages,
-    isSuccess,
+    error: messagesError,
+    isSuccess: isMessagesSuccess,
   } = useQueryGetMessagesByChatId({ chatId });
 
   const {
     mutateAsync: sendMessageToChat,
     isPending: isSendMessageToChatPending,
+    error: sendMessageToChatError,
   } = useMutationSendMessageToChat();
 
-  const { data: permissionChat, isLoading: isChatLoading } =
-    useQueryGetUserChatById({
-      chatId,
-    });
+  const {
+    data: permissionChat,
+    isLoading: isChatLoading,
+    error: chatError,
+  } = useQueryGetUserChatById({
+    chatId,
+  });
+
+  useTrpcError(messagesError, sendMessageToChatError, chatError);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   /**
-   * Supabase websocket listening to update on messages on given chatroom
+   * Supabase websockets behavior:
+   * messageReceivedChannel - Listening to messages added to table, refetch on a new message on table
+   * userJoinChannel:
+   *  - sync: synchronize the connectedUsers state to with the presence state
+   *  - track: add the user to the connectedUsers state when they join the chat
+   *  - leave: remove the user from the connectedUsers state when they leave the chat
    */
   useEffect(() => {
     let hasSyncedInitially = false;
 
-    // Subscribe to message received channel
     const messageReceivedChannel = supabase
       .channel("custom-all-channel")
       .on(
@@ -79,7 +92,6 @@ function ChatWindow({ chatId }: Props) {
       )
       .subscribe();
 
-    // Subscribe to user join channel
     const userJoinChannel = supabase.channel(`user-join-${chatId}`, {
       config: { presence: { key: session!.user.id } },
     });
@@ -149,7 +161,6 @@ function ChatWindow({ chatId }: Props) {
         });
       }
 
-      // Clean up subscriptions on component unmount
       void supabase.removeChannel(messageReceivedChannel);
       void supabase.removeChannel(userJoinChannel);
     };
@@ -160,13 +171,6 @@ function ChatWindow({ chatId }: Props) {
    * Create listener to message window scroll, and update AtBottom state
    */
   useEffect(() => {
-    const handleScroll = () => {
-      if (!messagesContainerRef.current) return;
-      const { scrollTop, scrollHeight, clientHeight } =
-        messagesContainerRef.current;
-      setIsAtBottom(scrollTop + clientHeight >= scrollHeight - 50);
-    };
-
     const messagesContainer = messagesContainerRef.current;
     if (messagesContainer) {
       messagesContainer.addEventListener("scroll", handleScroll);
@@ -200,7 +204,23 @@ function ChatWindow({ chatId }: Props) {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages, isFirstMount, isSuccess, isAtBottom]);
+  }, [messages, isFirstMount, isMessagesSuccess, isAtBottom]);
+
+  useEffect(() => {
+    if (isSendMessageToChatPending) {
+      setIsRefetchingOwnMessage(true);
+    } else {
+      if (isRefetchingOwnMessage && (messagesError ?? isMessagesSuccess)) {
+        setIsRefetchingOwnMessage(false);
+      }
+    }
+    handleScroll();
+  }, [
+    messagesError,
+    isMessagesSuccess,
+    isSendMessageToChatPending,
+    isRefetchingOwnMessage,
+  ]);
 
   function focusInput() {
     if (inputRef.current) {
@@ -212,6 +232,13 @@ function ChatWindow({ chatId }: Props) {
     await refetchMessages();
     setContent("");
     focusInput();
+  }
+
+  function handleScroll() {
+    if (!messagesContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } =
+      messagesContainerRef.current;
+    setIsAtBottom(scrollTop + clientHeight >= scrollHeight - 50);
   }
 
   const onSubmit = async (ev: FormEvent) => {
@@ -340,6 +367,9 @@ function ChatWindow({ chatId }: Props) {
             currUserId={permissionChat.userId}
           />
         ))}
+        {isRefetchingOwnMessage && (
+          <ChatMessagePreview isLoading={true} dir={false} />
+        )}
         <div ref={messagesEndRef}></div>
       </div>
       <form onSubmit={onSubmit} className="flex items-center gap-2">
